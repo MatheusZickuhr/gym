@@ -8,6 +8,12 @@ import gym
 from gym import spaces
 from gym.utils import seeding, EzPickle
 
+import random
+
+
+random.seed(1)
+
+
 # Rocket trajectory optimization is a classic topic in Optimal Control.
 #
 # According to Pontryagin's maximum principle it's optimal to fire engine full throttle or
@@ -132,15 +138,17 @@ class LunarLander(gym.Env, EzPickle):
         # terrain
         CHUNKS = 11
         height = self.np_random.uniform(0, H/2, size=(CHUNKS+1,) )
-        chunk_x  = [W/(CHUNKS-1)*i for i in range(CHUNKS)]
-        self.helipad_x1 = chunk_x[CHUNKS//2-1]
-        self.helipad_x2 = chunk_x[CHUNKS//2+1]
-        self.helipad_y  = H/4
-        height[CHUNKS//2-2] = self.helipad_y
-        height[CHUNKS//2-1] = self.helipad_y
-        height[CHUNKS//2+0] = self.helipad_y
-        height[CHUNKS//2+1] = self.helipad_y
-        height[CHUNKS//2+2] = self.helipad_y
+        chunk_x = [W/(CHUNKS-1)*i for i in range(CHUNKS)]
+        x1_index = random.randint(0, CHUNKS - 1)
+        x2_index = x1_index + 2 if x1_index + 2 < CHUNKS else x1_index - 2
+        self.helipad_x1 = chunk_x[x1_index]
+        self.helipad_x2 = chunk_x[x2_index]
+        self.helipad_y = H / 4
+        start = min(x1_index, x2_index)
+        end = max(x1_index, x2_index)
+        for index in range(start-1, end+2, 1):
+            height[index] = self.helipad_y
+
         smooth_y = [0.33*(height[i-1] + height[i+0] + height[i+1]) for i in range(CHUNKS)]
 
         self.moon = self.world.CreateStaticBody( shapes=edgeShape(vertices=[(0, 0), (W, 0)]) )
@@ -290,9 +298,11 @@ class LunarLander(gym.Env, EzPickle):
             self.lander.angle,
             20.0*self.lander.angularVelocity/FPS,
             1.0 if self.legs[0].ground_contact else 0.0,
-            1.0 if self.legs[1].ground_contact else 0.0
+            1.0 if self.legs[1].ground_contact else 0.0,
+            self.helipad_x1,
+            self.helipad_x2,
             ]
-        assert len(state)==8
+        assert len(state)==10
 
         reward = 0
         shaping = \
