@@ -139,10 +139,11 @@ class LunarLander(gym.Env, EzPickle):
         CHUNKS = 11
         height = self.np_random.uniform(0, H/2, size=(CHUNKS+1,) )
         chunk_x = [W/(CHUNKS-1)*i for i in range(CHUNKS)]
-        x1_index = random.randint(0, CHUNKS - 1)
-        x2_index = x1_index + 2 if x1_index + 2 < CHUNKS else x1_index - 2
-        start = min(x1_index, x2_index)
-        end = max(x1_index, x2_index)
+
+        possible_positions = [(2, 4), (4, 6), (6, 8)]
+
+        start, end = random.choice(possible_positions)
+
         self.helipad_x1 = chunk_x[start]
         self.helipad_x2 = chunk_x[end]
         self.helipad_y = H / 4
