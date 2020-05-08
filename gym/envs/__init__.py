@@ -95,6 +95,21 @@ register(
 # ----------------------------------------
 
 register(
+    id='LunarLanderRandomFlag-v0',
+    entry_point='gym.envs.box2d:LunarLanderRandomFlag',
+    max_episode_steps=1000,
+    reward_threshold=200,
+)
+
+register(
+    id='LunarLanderRandomFlagContinuous-v0',
+    entry_point='gym.envs.box2d:LunarLanderRandomFlagContinuous',
+    max_episode_steps=1000,
+    reward_threshold=200,
+)
+
+
+register(
     id='LunarLander-v2',
     entry_point='gym.envs.box2d:LunarLander',
     max_episode_steps=1000,
